@@ -34,7 +34,7 @@ final class DeleteIfExpiredFileTest extends \PHPUnit\Framework\TestCase
         '_SESSION',
     ];
 
-    public function testGetWithDeleteIfExpiredTrue()
+    public function testGetWithIgnoreTtlFalse()
     {
         // Set an item with 1 second TTL
         $return = $this->cache->setItem('test_key_file', 'test_value', 1);
@@ -53,8 +53,8 @@ final class DeleteIfExpiredFileTest extends \PHPUnit\Framework\TestCase
         // Wait for expiration
         \sleep(2);
 
-        // Get with deleteIfExpired=true (default) - should return null and delete the item
-        $return = $this->adapter->get($storeKey, true);
+        // Get with ignoreTtl=false (default) - should return null and delete the item
+        $return = $this->adapter->get($storeKey, false);
         static::assertNull($return);
 
         // Verify the item was deleted (file should not exist)
@@ -62,7 +62,7 @@ final class DeleteIfExpiredFileTest extends \PHPUnit\Framework\TestCase
         static::assertFalse($return);
     }
 
-    public function testGetWithDeleteIfExpiredFalse()
+    public function testGetWithIgnoreTtlTrue()
     {
         // Set an item with 1 second TTL
         $return = $this->cache->setItem('test_key_file2', 'test_value2', 1);
@@ -81,10 +81,12 @@ final class DeleteIfExpiredFileTest extends \PHPUnit\Framework\TestCase
         // Wait for expiration
         \sleep(2);
 
-        // Get with deleteIfExpired=false - should return null but NOT delete the item
+        // Get with ignoreTtl=true - should return the value even though expired and NOT delete the item
         // Use the store key, not the original key
-        $return = $this->adapter->get($storeKey, false);
-        static::assertNull($return);
+        $serialized = $this->adapter->get($storeKey, true);
+        static::assertNotNull($serialized, 'Serialized value should not be null when ignoreTtl=true');
+        $return = $this->serializer->unserialize($serialized);
+        static::assertSame('test_value2', $return);
 
         // With file adapter, we can check if the file still exists
         assert($this->adapter instanceof AdapterFile);
@@ -94,12 +96,12 @@ final class DeleteIfExpiredFileTest extends \PHPUnit\Framework\TestCase
         $method->setAccessible(true);
         $fileName = $method->invoke($this->adapter, $storeKey);
         
-        static::assertTrue(\file_exists($fileName), 'File should still exist when deleteIfExpired=false');
+        static::assertTrue(\file_exists($fileName), 'File should still exist when ignoreTtl=true');
         
-        // Now call get with deleteIfExpired=true (default) and verify it gets deleted
-        $return = $this->adapter->get($storeKey, true);
+        // Now call get with ignoreTtl=false (default) and verify it gets deleted
+        $return = $this->adapter->get($storeKey, false);
         static::assertNull($return);
-        static::assertFalse(\file_exists($fileName), 'File should be deleted when deleteIfExpired=true');
+        static::assertFalse(\file_exists($fileName), 'File should be deleted when ignoreTtl=false');
     }
 
     public function testGetWithDefaultBehavior()
@@ -117,7 +119,7 @@ final class DeleteIfExpiredFileTest extends \PHPUnit\Framework\TestCase
         // Wait for expiration
         \sleep(2);
 
-        // Get without specifying deleteIfExpired - should use default (true) and delete
+        // Get without specifying ignoreTtl - should use default (false) and delete, returning null
         $return = $this->adapter->get($storeKey);
         static::assertNull($return);
 

@@ -60,9 +60,9 @@ class AdapterMemcache implements iAdapter
      * {@inheritdoc}
      *
      * Note: Memcache automatically handles expiration at the storage level.
-     * The $deleteIfExpired parameter has no effect for this adapter.
+     * The $ignoreTtl parameter has no effect for this adapter.
      */
-    public function get(string $key, bool $deleteIfExpired = true)
+    public function get(string $key, bool $ignoreTtl = false)
     {
         return $this->memcache->get($key);
     }
