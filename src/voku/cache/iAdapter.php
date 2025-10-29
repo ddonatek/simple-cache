@@ -13,12 +13,12 @@ interface iAdapter
      * Get cached-item by key.
      *
      * @param string $key
-     * @param bool   $deleteIfExpired  <p>If true, delete the cache entry if it's expired (default: true)</p>
+     * @param bool   $ignoreTtl  <p>If true, return the value even if expired (default: false)</p>
      *
      * @return mixed|null
      *                    <p>will return NULL if the key not exists</p>
      */
-    public function get(string $key, bool $deleteIfExpired = true);
+    public function get(string $key, bool $ignoreTtl = false);
 
     /**
      * Set cache-item by key => value.

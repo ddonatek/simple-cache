@@ -46,25 +46,10 @@ class AdapterArray implements iAdapter
     /**
      * {@inheritdoc}
      */
-    public function get(string $key, bool $deleteIfExpired = true)
+    public function get(string $key, bool $ignoreTtl = false)
     {
-        if ($deleteIfExpired) {
+        if (!$ignoreTtl) {
             $this->removeExpired($key);
-        } else {
-            // Check if expired without deleting
-            if (
-                \array_key_exists($key, self::$expired)
-                &&
-                \array_key_exists($key, self::$values)
-            ) {
-                list($time, $ttl) = self::$expired[$key];
-                \assert(\is_int($time));
-                \assert(\is_int($ttl));
-
-                if (\time() > ($time + $ttl)) {
-                    return null;
-                }
-            }
         }
 
         return \array_key_exists($key, self::$values) ? self::$values[$key] : null;
