@@ -57,11 +57,11 @@ class CacheChain implements iCache
     /**
      * {@inheritdoc}
      */
-    public function getItem(string $key)
+    public function getItem(string $key, int $forceStaticCacheHitCounter = 0, bool $deleteIfExpired = true)
     {
         foreach ($this->caches as $cache) {
             if ($cache->existsItem($key)) {
-                return $cache->getItem($key);
+                return $cache->getItem($key, $forceStaticCacheHitCounter, $deleteIfExpired);
             }
         }
 

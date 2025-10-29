@@ -15,10 +15,12 @@ interface iCache
      * get item
      *
      * @param string $key
+     * @param int    $forceStaticCacheHitCounter  <p>Force static cache hit counter (implementation-specific)</p>
+     * @param bool   $deleteIfExpired  <p>If true, delete the cache entry if it's expired (default: true)</p>
      *
      * @return mixed
      */
-    public function getItem(string $key);
+    public function getItem(string $key, int $forceStaticCacheHitCounter = 0, bool $deleteIfExpired = true);
 
     /**
      * set item
