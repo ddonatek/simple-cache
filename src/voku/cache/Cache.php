@@ -399,7 +399,7 @@ class Cache implements iCache
      *
      * @return mixed
      */
-    public function getItem(string $key, int $forceStaticCacheHitCounter = 0)
+    public function getItem(string $key, int $forceStaticCacheHitCounter = 0, bool $deleteIfExpired = true)
     {
         if (!$this->adapter instanceof iAdapter) {
             return null;
@@ -426,7 +426,7 @@ class Cache implements iCache
             return self::$STATIC_CACHE[$storeKey];
         }
 
-        $serialized = $this->adapter->get($storeKey);
+        $serialized = $this->adapter->get($storeKey, $deleteIfExpired);
         if ($this->serializer && $this->serializer instanceof SerializerNo) {
             $value = $serialized;
         } else {
